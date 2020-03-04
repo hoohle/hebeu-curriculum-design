@@ -1,0 +1,20 @@
+..\obj\led.o: ..\HARDWARE\LED\led.c
+..\obj\led.o: ..\HARDWARE\LED\led.h
+..\obj\led.o: ..\SYSTEM\sys.h
+..\obj\led.o: ..\USER\stm32f10x.h
+..\obj\led.o: ..\CORE\core_cm3.h
+..\obj\led.o: D:\software\project design\keil_V5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\led.o: ..\CORE\core_cmInstr.h
+..\obj\led.o: ..\CORE\core_cmFunc.h
+..\obj\led.o: ..\USER\system_stm32f10x.h
+..\obj\led.o: ..\USER\stm32f10x_conf.h
+..\obj\led.o: ..\OBJ\RTE\RTE_Components.h
+..\obj\led.o: ..\STM32F10X_FWLib\inc\stm32f10x_gpio.h
+..\obj\led.o: ..\STM32F10X_FWLib\inc\stm32f10x_rcc.h
+..\obj\led.o: ..\HARDWARE\TIMER\timer.h
+..\obj\led.o: ..\STM32F10X_FWLib\inc\stm32f10x_tim.h
+..\obj\led.o: ..\HARDWARE\LED\LED.h
+..\obj\led.o: ..\HARDWARE\KEY\key.h
+..\obj\led.o: ..\HARDWARE\LCD\LCD_5110.h
+..\obj\led.o: ..\HARDWARE\DisPlay\display.h
+..\obj\led.o: ..\SYSTEM\systick.h

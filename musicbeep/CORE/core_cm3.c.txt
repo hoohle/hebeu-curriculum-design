@@ -1,0 +1,55 @@
+ STM32从3.0库开始引入了CMSIS，CMSIS是Cortex微控制器软件接口标准（Cortex MicroController Software Interface Standard）的缩写，这个是ARM定制的一个用于Cortex-M系列的一个标准，主要是为了提供通用api接口来访问内核和一些片上外设，提高代码的可移植性。
+
+CMSIS有三个层：核内外设访问层Core Peripheral Access Layer（CPAL），中间件访问层Middleware Access Layer（MWAL），设备访问层（Device Peripheral Access Layer）。
+
+CPAL用于访问内核的寄存器和组件，如NVIC，调试系统等。该层是由ARM实现的。
+
+MWAL用于对中间件的访问，现在该层还未实现。（也不知道所谓的中间件是什么东西）。
+
+DPAL用于定义一些硬件寄存器的地址和一些外设访问函数，由芯片制造商实现。
+
+ 
+
+CPAL层的实现就是Core_cm3.c文件，DPAL层的实现就是system_stm32f10x.c文件（似乎还应该加上外设的函数库）。
+
+ 
+
+接下来就来了解一下Core_cm3.c里面有什么东东：
+
+首先是汇编关键字__ASM和__INLINE的宏定义，支持不同的编译器。由于使用的是Keil，所以就只看第一种，__CC_ARM。
+
+这里面的函数调用都只符合ARM过程调用标准的，如R0到R3用作参数和返回值传递，这也是这里面唯一用到的。
+
+此外，在Keil中使用了__asm关键字后，编译器不会为函数增加返回指令，所以需要自己编写返回命令，也就是每个函数后面的  bx lr。
+
+1.     __ASM uint32_t __get_PSP(void)：获取进程堆栈指针PSP。
+
+2.     __ASM void __set_PSP(uint32_t topOfProcStack)：设置PSP。
+
+3.     __ASM uint32_t __get_MSP(void)：获取主堆栈指针MSP。
+
+4.     __ASM void __set_MSP(uint32_t mainStackPointer)：设置MSP。
+
+5.     __ASM uint32_t __REV16(uint16_t value)：反转半字中字节顺序，如0xABCD反转后得到0xCDAB。
+
+6.     __ASM int32_t __REVSH(int16_t value)：反转字节顺序，并做符号拓展。就是在__REV16函数得到的结果上再进行一次符号拓展。这两个函数主要是方便进行大小端的切换。
+
+7.     __ASM void __CLREX(void)：清除由LDREX指令造成的互斥锁。LDREX和STREX是Cortex用来实现互斥访问，保护临界资源的指令，LDREX执行后，只有离它最近的一条存储指令（STR，STREX）才能执行，其他的存储指令都会被驳回，而CLREX就是用于清除互斥访问状态的标记。
+
+8.     __ASM uint32_t  __get_BASEPRI(void)：获取BASEPRI寄存器的值，优先级号高于该寄存器的中断都会被屏蔽（优先级号越大，优先级越低），为零时不屏蔽任何中断。
+
+9.     __ASM void __set_BASEPRI(uint32_t basePri)：设置BASEPRI的值。
+
+10.  __ASM uint32_t __get_PRIMASK(void)：PRIMASK是一个只有一位的寄存器，置位时屏蔽绝大部分的异常中断，只剩下NMI和HardFault可以响应。
+
+11.  __ASM void __set_PRIMASK(uint32_t priMask)：设置PRIMASK的值。
+
+12.  __ASM uint32_t  __get_FAULTMASK(void)：FAULTMASK也是一个只有一位的寄存器，为1时只有NMI才能响应，其他异常与中断全部被屏蔽。
+
+13.  __ASM void __set_FAULTMASK(uint32_t faultMask)：设置FAULTMASK的值。
+
+14.  __ASM uint32_t __get_CONTROL(void)：获取CONTROL的值。寄存器CONTROL只有两位。CONTROL[0]选择特权级别，0为特权级，1为敌用户级。CONTROL[1]用于选择堆栈指针，0为MSP，1为PSP。
+
+15.  __ASM void __set_CONTROL(uint32_t control)：设置CONTROL寄存器的值。
+
+BASEPRI，PRIMASK，FAULTMASK，CONTROL都只能在特权模式下被修改。
